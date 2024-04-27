@@ -1,0 +1,32 @@
+---
+- name: Création d'un serveur web
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Créer le conteneur Docker avec Debian
+      docker_container:
+        name: mon_serveur_web
+        image: debian
+        detach: yes
+        state: started
+
+    - name: Installer les paquets requis
+      docker_container:
+        name: mon_serveur_web
+        command: apt-get update && apt-get install -y openssh-server python3 apache2 php libapache2-mod-php iputils-ping git
+      environment:
+        DEBIAN_FRONTEND: noninteractive
+
+    - name: Configurer SSH dans le conteneur
+      docker_container:
+        name: mon_serveur_web
+        command: sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/; s/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
+      environment:
+        DEBIAN_FRONTEND: noninteractive
+
+    - name: Démarrer le service SSH
+      docker_container:
+        name: mon_serveur_web
+        command: service ssh start
+      environment:
+        DEBIAN_FRONTEND: noninteractive

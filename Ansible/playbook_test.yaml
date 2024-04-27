@@ -1,0 +1,25 @@
+---
+- name: Playbook pour créer un conteneur Docker
+  hosts: localhost
+  gather_facts: no
+  become: yes
+  tasks:
+    - name: Créer le dossier pour stocker les clefs
+      ansible.builtin.file:
+        path: /home/user-ansible/projetAnsible/ressources/keys/proxyinverse1/
+        state: directory
+    - name: Créer le conteneur ProxyInverse
+      docker_container:
+        name: ProxyInverse
+        image: debian-ssh-py:v13
+        state: started
+        restart_policy: always
+        interactive: yes
+        tty: yes
+        detach: true
+        volumes: "/home/user-ansible/projetAnsible/ressources/keys/proxyinverse1:/root/keys/"
+        ports:
+          - "80:80"
+        networks:
+          - name: LAN_ANSIBLE
+            ipv4_address: "{{ hostvars['proxyinverse1']['ansible_host'] }}"
