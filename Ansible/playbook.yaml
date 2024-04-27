@@ -1,32 +1,25 @@
 ---
-- name: Création d'un serveur web
+- name: Playbook pour créer un conteneur Docker
   hosts: localhost
+  gather_facts: no
   become: yes
   tasks:
-    - name: Créer le conteneur Docker avec Debian
+    - name: Créer le dossier pour stocker les clefs
+      ansible.builtin.file:
+        path: /home/user-ansible/projetAnsible/ressources/keys/proxyinverse1/
+        state: directory
+    - name: Créer le conteneur ProxyInverse
       docker_container:
-        name: mon_serveur_web
-        image: debian
-        detach: yes
+        name: ProxyInverse
+        image: debian-ssh-py:v13
         state: started
-
-    - name: Installer les paquets requis
-      docker_container:
-        name: mon_serveur_web
-        command: apt-get update && apt-get install -y openssh-server python3 apache2 php libapache2-mod-php iputils-ping git
-      environment:
-        DEBIAN_FRONTEND: noninteractive
-
-    - name: Configurer SSH dans le conteneur
-      docker_container:
-        name: mon_serveur_web
-        command: sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/; s/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
-      environment:
-        DEBIAN_FRONTEND: noninteractive
-
-    - name: Démarrer le service SSH
-      docker_container:
-        name: mon_serveur_web
-        command: service ssh start
-      environment:
-        DEBIAN_FRONTEND: noninteractive
+        restart_policy: always
+        interactive: yes
+        tty: yes
+        detach: true
+        volumes: "/home/user-ansible/projetAnsible/ressources/keys/proxyinverse1:/root/keys/"
+        ports:
+          - "80:80"
+        networks:
+          - name: LAN_ANSIBLE
+            ipv4_address: "{{ hostvars['proxyinverse1']['ansible_host'] }}"
