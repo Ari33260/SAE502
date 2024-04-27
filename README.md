@@ -1,4 +1,4 @@
-# SAE502 : Projet universitaire d'automatotisation de tâche
+# SAE502 : Projet universitaire d'automatisation de tâches
 ## Contexte
 L'objectif de ce projet est de sécuriser plusieurs instances web Apache en plusieurs containers : cela permet d'éviter de se retrouver avec plusieurs "VirtualHost" sur la même machine, cela peut poser des graves problèmes de sécurité surtout quand certains V.H sont écoutés sur Internet. Ici, chaque site-web aura son propre container. Le déploiement de ces containers se fera via Ansible en utilisant le module Docker et SSH Ansible. En plus de cela, une base de données MySQL et un visionneur de base (PhPMyAdmin) seront inclus dans le déploiement.
 Comme il est prévu d'ajouter plusieurs sites-web, un main node manager sera installé dans un container afin de pouvoir ajouter un service web instantannément.
