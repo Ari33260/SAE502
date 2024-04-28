@@ -19,6 +19,7 @@ Liste succincte de ce qui a été fait :
 
 ## A faire
 Liste succincte de ce qui reste à faire :
+ - Corriger problème push des dossiers vides (Merci VSCode)
  - Affiner le Playbook pour l'installation du serveur MySQL (demander un fichier SQL de base lors du premier démarrage)
  - Finaliser le plaubooks du Controll Manager pour créer le premier site-web
  - Conception du Main Node Manager (Playbook, Inventaire et site-web de management)
