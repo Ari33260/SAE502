@@ -7,13 +7,13 @@ CREE PAR BAPTISTE BORDENAVE
 
 #### A REMPLIR :
 
-## Nom du site-web : 				[NAME_WEBSITE]
-## Adresse IP d'écoute : 			[IP_LAN]
+## Nom du site-web : 				            [NAME_WEBSITE]
+## Adresse IP d'écoute : 			            [IP_LAN]
 ## OU
-## Adresse IP VPN si PRIVE : 			[IP_LAN]
-## Port d'écoute (80) : 			[TCP_LISTENING]
-## FQDN : 					[FQDN_ADD]
-## PWD (/var/www/---) : 			[PWD]
+## Adresse IP VPN si PRIVE : 		            [IP_LAN]
+## Port d'écoute (80) : 			            [TCP_LISTENING]
+## FQDN : 					                    [FQDN_ADD]
+## PWD (/var/www/---) : 			            [PWD]
 ## Activer les logs ? (Oui : # Non : (vide)) : 	[OPT_LOGS]
 
 #### A COPIER COLLER :
