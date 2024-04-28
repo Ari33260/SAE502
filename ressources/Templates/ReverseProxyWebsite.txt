@@ -1,0 +1,16 @@
+#Proxy inversé vers le website [NAME]
+<VirtualHost *:80>
+    ServerName [FQDN]
+    ServerAlias www.[FQDN]
+
+    <Proxy *>
+        Require ip [IPv4CIDR]
+    </Proxy>
+
+    ProxyPreserveHost On
+    ProxyPass / http://[IPv4Web]:[WebPORT]/
+    ProxyPassReverse / http://[IPv4Web]:[WebPORT]/
+
+    ErrorLog ${APACHE_LOG_DIR}/[NAME]_error.log
+    CustomLog ${APACHE_LOG_DIR}/[NAME]_access.log combined
+</VirtualHost>
