@@ -1,0 +1,13 @@
+---
+- name: Installer le pack Apache / PHP
+  apt:
+    name:
+      - apache2
+      - php
+      - libapache2-mod-php
+    state: present
+
+- name: Installer git
+  apt:
+    name: git
+    state: present

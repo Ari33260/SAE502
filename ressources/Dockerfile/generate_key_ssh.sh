@@ -8,5 +8,6 @@ touch /root/.ssh/authorized_keys
 cat root/keys/id_rsa.pub >> /root/.ssh/authorized_keys
 chmod 600 /root/.ssh/authorized_keys
 chmod 700 /root/.ssh
+chmod 606 /root/keys/id_rsa
 echo 'PasswordAuthentication no' >> /etc/ssh/sshd_config
 service ssh restart

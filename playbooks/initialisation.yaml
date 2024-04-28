@@ -1,0 +1,76 @@
+---
+- name: Créer les containers Dockers principaux
+  hosts: localhost
+  gather_facts: no
+  become: yes
+  tasks:
+    - name: Créer le dossier ProxyInverse1 pour stocker les clefs
+      ansible.builtin.file:
+        path: /home/user-ansible/projetAnsible/ressources/keys/proxyinverse1/
+        state: directory
+    - name: Créer le conteneur ProxyInverse
+      docker_container:
+        name: proxyinverse1
+        image: debian-ssh-py:v14
+        state: started
+        restart_policy: always
+        interactive: yes
+        tty: yes
+        detach: true
+        volumes: "/home/user-ansible/projetAnsible/ressources/keys/proxyinverse1:/root/keys/"
+        ports:
+          - "80:80"
+        networks:
+          - name: LAN_ANSIBLE
+            ipv4_address: "{{ hostvars['proxyinverse1']['ansible_host'] }}"
+    - name: Attendre 10 secondes le temps que la clef SSH se génère.
+      ansible.builtin.pause:
+        seconds: 10
+
+- name: Installe les paquets de base
+  hosts: proxyinverse1
+  become: yes
+  roles:
+    - base_packages
+
+- name: Création du container Base de Données (MySQL)
+  hosts: localhost
+  tasks:
+    - name: Create_bdd_container
+      community.docker.docker_container:
+        name: bdd1
+        image: mysql
+        state: started
+        restart_policy: always
+        detach: yes
+        tty: yes
+        interactive: yes
+        networks:
+          - name: LAN_ANSIBLE
+            ipv4_address: "{{ hostvars['bdd1']['ansible_host'] }}"
+        env:
+          MYSQL_ROOT_PASSWORD: "{{ hostvars['bdd1']['mysql_root_password'] }}"
+          MYSQL_DATABASE: "{{ hostvars['bdd1']['mysql_database'] }}"
+          MYSQL_USER: "{{ hostvars['bdd1']['mysql_user'] }}"
+          MYSQL_PASSWORD: "{{ hostvars['bdd1']['mysql_password'] }}"
+
+- name: Création du container PHPMyAdmin (MySQL)
+  hosts: localhost
+  tasks:
+      - name: Create_phpmyadmin_container
+        community.docker.docker_container:
+          name: phpmyadmin
+          image: phpmyadmin
+          state: started
+          restart_policy: always
+          detach: yes
+          tty: yes
+          interactive: yes
+          ports:
+            - "8010:80"
+          networks:
+            - name: LAN_ANSIBLE
+              ipv4_address: "{{ hostvars['phpmyadmin']['ansible_host'] }}"
+          env:
+            PMA_HOST: "{{ hostvars['phpmyadmin']['pma_host'] }}"
+            PMA_PORT: "{{ hostvars['phpmyadmin']['pma_port'] }}"
