@@ -36,6 +36,9 @@
 - name: Création du container Base de Données (MySQL)
   hosts: localhost
   tasks:
+    - name: Créer le dossier SQL pour stocker la data
+      ansible.builtin.file:
+        path: /home/user-ansible/projetAnsible/ressources/sql/
     - name: Create_bdd_container
       community.docker.docker_container:
         name: bdd1
