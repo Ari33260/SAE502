@@ -43,6 +43,7 @@
         state: started
         restart_policy: always
         detach: yes
+        volumes: "/home/user-ansible/projetAnsible/ressources/sql:/var/lib/mysql"
         tty: yes
         interactive: yes
         networks:
