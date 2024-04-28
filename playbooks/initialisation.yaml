@@ -78,3 +78,27 @@
           env:
             PMA_HOST: "{{ hostvars['phpmyadmin']['pma_host'] }}"
             PMA_PORT: "{{ hostvars['phpmyadmin']['pma_port'] }}"
+
+- name: ProxyInverse - Désactivation site par défaut et copie du template
+  hosts: proxyinverse1
+  tasks:
+    - name: Désactivation du site-web Apache par défaut
+      command: a2dissite 000-default
+    - name: Copier le template
+      template:
+        src: /home/user-ansible/projetAnsible/ressources/Templates/HTTP-VH.txt
+        dest: /etc/apache2/sites-available/phpmyadmin.conf
+
+- name: Remplissage du template ProxyInverse pour PHPMyAdmin
+  hosts: proxyinverse1
+  vars:
+    - FQDN: "proxyinverse1.ansible.local"
+    - Nom: "PHPMYADMIN"
+    - PortWeb: "80"
+    - IPv4Web: "{{ hostvars['phpmyadmin']['ansible_host'] }}"
+    - GSSNLAN: "172.33.40.0/24"
+    - path: "/etc/apache2/sites-available/phpmyadmin.conf"
+  roles:
+    - template_proxyinverse
+
+# ... à compléter
