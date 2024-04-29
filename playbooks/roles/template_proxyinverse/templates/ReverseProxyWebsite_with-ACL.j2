@@ -1,0 +1,16 @@
+#Proxy inversé vers le website {{ Name }}
+<VirtualHost *:80>
+    ServerName {{ FQDN }}
+    ServerAlias www.{{ FQDN }}
+
+    <Proxy *>
+        {{ ACL }}
+    </Proxy>
+
+    ProxyPreserveHost On
+    ProxyPass / http://{{ Ipv4Dest }}:{{ Ipv4Port }}/
+    ProxyPassReverse / http://{{ Ipv4Dest }}:{{ Ipv4Port }}/
+
+    ErrorLog ${APACHE_LOG_DIR}/{{ Name }}_error.log
+    CustomLog ${APACHE_LOG_DIR}/{{ Name }}_access.log combined
+</VirtualHost>

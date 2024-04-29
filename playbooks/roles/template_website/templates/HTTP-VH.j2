@@ -1,0 +1,36 @@
+# *////////////////////////////////////////
+# DEPLOYER UN WEBSITE PUBLIC OU PRIVE HTTP
+# CONTROLE D'ACCES : NON
+# //
+# CREE PAR BAPTISTE BORDENAVE
+# ////////////////////////////////////////*
+
+#### A REMPLIR :
+
+## Nom du site-web : 				            {{ Name }}
+## Adresse IP d'écoute : 			            {{ IPv4Listen }}
+## OU
+## Adresse IP VPN si PRIVE : 		            {{ IPv4Listen }}
+## Port d'écoute (80) : 			            {{ TCPListen }}
+## FQDN : 					                    {{ FQDN }}
+## PWD (/var/www/---) : 			            {{ path }}
+## Activer les logs ? (Oui : # Non : (vide)) : 	{{ Logs }}
+
+#### A COPIER COLLER :
+
+# SITE-WEB {{ Name }}
+<VirtualHost {{ IPv4Listen }}:{{ TCPListen }}>
+        ServerName "www.{{ FQDN }}"
+        ServerAlias "{{ FQDN }}"
+
+        DocumentRoot "{{ path }}"
+        <Directory "{{ path }}">
+            Options Indexes FollowSymLinks MultiViews
+            AllowOverride All
+            Order allow,deny
+            allow from all
+        </Directory>
+
+        {{ Logs }}ErrorLog "${APACHE_LOG_DIR}/apache2-{{ Name }}-error.log"
+        {{ Logs }}CustomLog "${APACHE_LOG_DIR}/apache2-{{ Name }}-access.log" combiport
+</VirtualHost>

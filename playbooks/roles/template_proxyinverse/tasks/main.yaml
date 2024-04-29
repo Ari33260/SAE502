@@ -1,0 +1,16 @@
+---
+- name: Remplacement du FQDN
+  template: src={{ template }} dest=/etc/apache2/sites-available/{{ FQDN }}.conf
+  become: true
+
+- name: Activer le virtualhost - {{ FQDN }}.conf
+  command: a2ensite {{ FQDN }}.conf
+  become: true
+
+- name: Désactiver le site par défaut
+  command: a2dissite 000-default.conf
+  become: true
+
+- name: Redémarrer le service apache2
+  command: service apache2 restart
+  become: true
