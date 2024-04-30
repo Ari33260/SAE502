@@ -8,6 +8,11 @@
       ansible.builtin.file:
         path: /home/user-ansible/projetAnsible/ressources/keys/proxyinverse1/
         state: directory
+    - name: Créer le réseau bridge
+      community.docker.docker_network:
+        name: "{{ hostvars['Docker']['NameBridge'] }}"
+        driver: bridge
+        state: present
     - name: Créer le conteneur ProxyInverse
       docker_container:
         name: proxyinverse1
@@ -70,8 +75,6 @@
           detach: yes
           tty: yes
           interactive: yes
-          ports:
-            - "8010:80"
           networks:
             - name: LAN_ANSIBLE
               ipv4_address: "{{ hostvars['phpmyadmin']['ansible_host'] }}"
@@ -111,3 +114,59 @@
       command: a2ensite _deny_direct-ip.conf
     - name: Redemarrer le service Apache
       command: service apache2 restart
+
+- name: Création du web Manager (Node Manager)
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Créer le dossier NodeManager pour stocker les clefs
+      ansible.builtin.file:
+        path: /home/user-ansible/projetAnsible/ressources/keys/NodeManager/
+        state: directory
+    - name: Créer le container NodeManager
+      docker_container:
+        name: NodeManager
+        image: debian-ssh-py:v14
+        state: started
+        restart_policy: always
+        interactive: yes
+        tty: yes
+        detach: true
+        volumes:
+          - "../ressources/keys/NodeManager:/root/keys/"
+          - "../ressources/web_management/:/var/www/{{ hostvars['NodeManager']['FQDN'] }}"
+        networks:
+          - name: LAN_ANSIBLE
+            ipv4_address: "{{ hostvars['NodeManager']['ansible_host'] }}"
+    - name: Attendre 10 secondes le temps que la clef SSH se génère.
+      ansible.builtin.pause:
+        seconds: 10
+
+- name: Installe les paquets de base
+  hosts: NodeManager
+  become: yes
+  roles:
+    - base_packages
+
+- name: Copier la clef SSH privée de user-ansible@localhost
+  hosts: NodeManager
+  become: yes
+  tasks:
+    - name: Copier la clef SSH privée de user-ansible@localhost
+      ansible.builtin.copy:
+        src: ~/.ssh/id_rsa
+        dest: /root/.ssh/id_rsa_gateway
+
+- name: Mise en place du service web 'web-management'
+  hosts: NodeManager
+  become: yes
+  vars:
+    - Name: "NodeManager"
+    - IPv4Listen: "*"
+    - TCPListen: "80"
+    - FQDN: "{{ hostvars['NodeManager']['FQDN'] }}"
+    - path: "/var/www/{{ hostvars['NodeManager']['FQDN'] }}"
+    - Logs: ""
+    - template: "HTTP-VH.j2"
+  roles:
+    - template_website

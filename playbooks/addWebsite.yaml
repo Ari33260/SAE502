@@ -1,0 +1,62 @@
+---
+# Variable en entrée :
+# Nom du site-web
+# Github
+# ACL
+- name: Mettre en place un service web
+  hosts: localhost
+  become: yes
+  gather_facts: no
+  tasks:
+    - name: Get info container
+      community.docker.docker_container_info:
+        name: "{{ item }}"
+      with_items: "{{ groups['test'] }}"
+      register: result
+
+    
+    - name: Trouver Les hôtes de libre
+      set_fact:
+        ListFreeHosts: "{{ ListFreeHosts | default([]) + [item.invocation.module_args.name] }}"
+      when: item.exists == False
+      with_items: "{{result.results}}"
+
+    - name: Annonce du premier hote de libre (si disponible)
+      ansible.builtin.debug:
+        msg: "Le hôte attribué à cet ajout est : {{ ListFreeHosts[0] }}"
+      when: ListFreeHosts[0] is defined
+
+    - name: Création variable du premier hote libre
+      set_fact:
+        Host: "{{ ListFreeHosts[0] }}"
+      when: ListFreeHosts[0] is defined
+
+    - name: Arrêter le playbook si Host est vide
+      fail:
+        msg: "Host est vide. Arrêt du playbook."
+      when: Host is not defined
+      
+    - name: Créer le container {{ Host }}
+      docker_container:
+        name: "{{Host}}"
+        image: debian-ssh-py:v14
+        state: started
+        restart_policy: always
+        interactive: yes
+        tty: yes
+        detach: true
+        volumes: "/home/user-ansible/projetAnsible/ressources/keys/{{Host}}:/root/keys/"
+        networks:
+          - name: LAN_ANSIBLE
+            ipv4_address: "{{ hostvars[Host]['ansible_host'] }}"
+    - name: Attendre 10 secondes le temps que la clef SSH se génère.
+      ansible.builtin.pause:
+        seconds: 10
+
+- name: Installe les paquets de base
+  hosts: "{{Host}}"
+  become: yes
+  roles:
+    - base_packages
+
+# A COMPLETER

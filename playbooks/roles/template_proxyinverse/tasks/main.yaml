@@ -1,5 +1,5 @@
 ---
-- name: Remplacement du FQDN
+- name: Mise en place du fichier conf
   template: src={{ template }} dest=/etc/apache2/sites-available/{{ FQDN }}.conf
   become: true
 
