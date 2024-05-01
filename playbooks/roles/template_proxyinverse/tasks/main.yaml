@@ -1,7 +1,17 @@
 ---
-- name: Mise en place du fichier conf
+- name: Mise en place du fichier conf (avec ACL)
+  vars:
+    - template: ReverseProxyWebsite_with-ACL.j2
   template: src={{ template }} dest=/etc/apache2/sites-available/{{ FQDN }}.conf
   become: true
+  when: ACL | length > 0
+
+- name: Mise en place du fichier conf (sans ACL)
+  vars:
+    - template: ReverseProxyWebsite_no-ACL.j2
+  template: src={{ template }} dest=/etc/apache2/sites-available/{{ FQDN }}.conf
+  become: true
+  when: ACL | length == 0
 
 - name: Activer le virtualhost - {{ FQDN }}.conf
   command: a2ensite {{ FQDN }}.conf

@@ -2,7 +2,6 @@
 # Variable en entrée :
 # GIT
 # ACL
-# Template
 # FQDN
 - name: Mettre en place un service web
   hosts: localhost
@@ -74,7 +73,7 @@
       command: git clone {{ GIT }} /var/www/{{FQDN}}
       when: GIT is defined
 
-- name: Mise en place de la conf Apache dans le reverse proxy (SANS ACL)
+- name: Mise en place de la conf Apache dans le reverse proxy
   hosts: proxyinverse1
   become: yes
   gather_facts: no
@@ -84,7 +83,7 @@
     - Ipv4Port: "80"
     - Ipv4Dest: "{{ hostvars[Name]['ansible_host'] }}"
     - ACL: "{{ ACL }}"
-    - template: "ReverseProxyWebsite_no-ACL.j2"
+    # - template: "ReverseProxyWebsite_no-ACL.j2"
   roles:
     - template_proxyinverse
 
