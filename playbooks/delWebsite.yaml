@@ -1,0 +1,45 @@
+---
+# Variable en entrée :
+# FQDN
+- name: Trouver le container à partir du FQDN
+  hosts: localhost
+  become: yes
+  gather_facts: no
+  tasks:
+    - name: Retrouver le nom du conteneur à partir du label
+      command: docker ps --filter "label=FQDN={{FQDN}}"  --format "{{ '{{' }}.Names{{ '}}' }}"
+      register: container_name_output
+      changed_when: false
+
+    - name: Extrait le nom du container à partir du résultat brute.
+      set_fact:
+        container_name: "{{ container_name_output.stdout_lines[0] }}"
+
+    - debug:
+        msg: "Le nom du conteneur est {{ container_name  }}"
+
+- name: Suppression de l'ensemble
+  hosts: localhost
+  become: yes
+  gather_facts: no
+  #vars:
+  #  - container_name: "{{ hostvars['localhost']['container_name'] }}"
+  tasks:
+  #  - Name: Arrête le container {{ container_name }}
+  #    docker_container:
+  #      name: "{{ container_name }}"
+  #      state: stopped
+    - name: Supprime le container {{ container_name }}
+      docker_container:
+        name: "{{ container_name }}"
+        state: absent
+
+    - name: Supprime le dossier SSH et web
+      file:
+        path: "{{item}}"
+        state: absent
+        owner: root
+        group: root
+      loop:
+        - ../ressources/keys/{{container_name}}/
+        - ../ressources/web/{{container_name}}/

@@ -1,8 +1,9 @@
 ---
 # Variable en entrée :
-# Nom du site-web
-# Github
+# GIT
 # ACL
+# Template
+# FQDN
 - name: Mettre en place un service web
   hosts: localhost
   become: yes
@@ -45,7 +46,11 @@
         interactive: yes
         tty: yes
         detach: true
-        volumes: "/home/user-ansible/projetAnsible/ressources/keys/{{Host}}:/root/keys/"
+        labels:
+          FQDN: "{{ FQDN }}"
+        volumes:
+          - "/home/user-ansible/projetAnsible/ressources/keys/{{Host}}:/root/keys/"
+          - "/home/user-ansible/projetAnsible/ressources/web/{{Host}}:/var/www/{{ FQDN }}"
         networks:
           - name: LAN_ANSIBLE
             ipv4_address: "{{ hostvars[Host]['ansible_host'] }}"
@@ -54,9 +59,46 @@
         seconds: 10
 
 - name: Installe les paquets de base
-  hosts: "{{Host}}"
+  hosts: "{{ hostvars['localhost']['Host'] }}"
   become: yes
+  gather_facts: no
   roles:
     - base_packages
 
-# A COMPLETER
+- name: Cloner le projet git
+  hosts: "{{ hostvars['localhost']['Host'] }}"
+  become: yes
+  gather_facts: no
+  tasks:
+    - name: Cloner le projet git
+      command: git clone {{ GIT }} /var/www/{{FQDN}}
+      when: GIT is defined
+
+- name: Mise en place de la conf Apache dans le reverse proxy (SANS ACL)
+  hosts: proxyinverse1
+  become: yes
+  gather_facts: no
+  vars:
+    - FQDN: "{{FQDN}}"
+    - Name: "{{ hostvars['localhost']['Host'] }}"
+    - Ipv4Port: "80"
+    - Ipv4Dest: "{{ hostvars[Name]['ansible_host'] }}"
+    - ACL: "{{ ACL }}"
+    - template: "ReverseProxyWebsite_no-ACL.j2"
+  roles:
+    - template_proxyinverse
+
+- name: Mise en place de la conf Apache dans le container {{ hostvars['localhost']['Host'] }}
+  hosts: "{{ hostvars['localhost']['Host'] }}"
+  become: yes
+  gather_facts: no
+  vars:
+    - Name: "{{ hostvars['localhost']['Host'] }}"
+    - IPv4Listen: "*"
+    - TCPListen: "80"
+    - FQDN: "{{ FQDN }}"
+    - path: "/var/www/{{FQDN}}"
+    - Logs: ""
+    - template: "HTTP-VH.j2"
+  roles:
+    - template_website
