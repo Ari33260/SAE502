@@ -101,3 +101,10 @@
     - template: "HTTP-VH.j2"
   roles:
     - template_website
+
+- name: Afficher adresse IP
+  hosts: localhost
+  tasks:
+    - ansible.builtin.debug:
+      msg: "L'adresse IP est : {{ hostvars[hostvars['localhost']['ansible_host']] }}"
+        

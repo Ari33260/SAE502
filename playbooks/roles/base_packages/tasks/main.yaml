@@ -5,9 +5,16 @@
       - apache2
       - php
       - libapache2-mod-php
+      - php-ssh2
     state: present
 
 - name: Installer git
   apt:
     name: git
     state: present
+
+- name: Demarre Apache en cas de redémarrage
+  lineinfile:
+    path: /root/start.sh
+    line: "service apache2 start"
+    insertafter: EOF

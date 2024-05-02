@@ -1,0 +1,27 @@
+---
+- hosts: localhost
+  tasks:
+    - name: Récupérer les noms de tous les conteneurs
+      command: docker ps -a --format "{{ '{{.Names}}' }}"
+      register: docker_ps
+
+    - name: Récupérer les informations de tous les conteneurs
+      docker_container_info:
+        name: "{{ item }}"
+        #name: website1
+      register: "container_info"
+      loop: "{{ docker_ps.stdout_lines }}"
+
+    #- name: Afficher toutes les informations des conteneurs
+    #  debug:
+    #    var: container_info.container.Config.Labels.FQDN
+
+
+    - name: Filtrer les informations des conteneurs
+      set_fact:
+        #container_data: "{{ container_info.container | json_query('[*].{name: item.item, ip_address: item.NetworkSettings.IPAddress, status: item.State.Status, fqdn: item.Config.Labels.FQDN}') }}"
+        container_data: "{{ container_info.container | json_query('[*].{name: item.Name, ip_address: item.container.NetworkSettings.Networks.LAN_ANSIBLE.IPAddress, status: item.State.Running, fqdn: item.Config.Labels.FQDN}') }}"
+
+    - name: Afficher les informations des conteneurs en JSON
+      debug:
+       var: container_data

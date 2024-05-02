@@ -14,6 +14,12 @@
     - name: Extrait le nom du container à partir du résultat brute.
       set_fact:
         container_name: "{{ container_name_output.stdout_lines[0] }}"
+      when: container_name_output.stdout_lines[0] is defined
+
+    - name: Site-web introuvable
+      fail:
+        msg: "Le site-web {{ FQDN }} est rattaché à aucun conteneur !"
+      when: container_name_output.stdout_lines[0] is not defined
 
     - debug:
         msg: "Le nom du conteneur est {{ container_name  }}"
@@ -43,3 +49,18 @@
       loop:
         - ../ressources/keys/{{container_name}}/
         - ../ressources/web/{{container_name}}/
+
+- name: Supprime l'ensemble sur proxyinverse1
+  hosts: proxyinverse1
+  become: yes
+  gather_facts: no
+  tasks:
+    - name: Désactive la conf {{ FQDN }}.conf
+      command: a2dissite {{ FQDN }}.conf
+    
+    - name: supprime la conf {{ FQDN }}.conf
+      file:
+        path: "/etc/apache2/sites-available/{{FQDN}}.conf"
+        state: absent
+        owner: root
+        group: root

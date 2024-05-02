@@ -94,11 +94,11 @@
 - name: Mise en place du ProxyInverse pour PhpMyAdmin
   hosts: proxyinverse1
   vars:
-    - FQDN: "phpmyadmin.ansible.local"
+    - FQDN: "{{ hostvars['phpmyadmin']['FQDN'] }}"
     - Name: "PHPMYADMIN"
     - Ipv4Port: "80"
     - Ipv4Dest: "{{ hostvars['phpmyadmin']['ansible_host'] }}"
-    - template: "ReverseProxyWebsite_no-ACL.j2"
+    - ACL: "{{ hostvars['phpmyadmin']['ACL'] }}"
   roles:
     - template_proxyinverse
 
@@ -134,7 +134,8 @@
         detach: true
         volumes:
           - "../ressources/keys/NodeManager:/root/keys/"
-          - "../ressources/web_management/:/var/www/{{ hostvars['NodeManager']['FQDN'] }}"
+          - "../ressources/NodeManager/web:/var/www/{{ hostvars['NodeManager']['FQDN'] }}"
+          - "../ressources/NodeManager/Ansible:/root/Ansible"
         networks:
           - name: LAN_ANSIBLE
             ipv4_address: "{{ hostvars['NodeManager']['ansible_host'] }}"
@@ -148,7 +149,19 @@
   roles:
     - base_packages
 
-- name: Copier la clef SSH privée de user-ansible@localhost
+#- name: Installe et initialise Ansible
+#  hosts: NodeManager
+#  become: yes
+#  tasks:
+#    - command: pipx install ansible-core
+#    - name: Créer le fichier inventaire avec la bonne IP Gateway
+#      copy:
+#        content: |
+#          [hosts]
+#          Gateway ansible_host={{ hostvars['Gateway']['ansible_host'] }} ansible_user={{ hostvars['Gateway']['ansible_user'] }} ansible_ssh_private_key_file=/root/.ssh/id_rsa_gateway
+#        dest: /root/Ansible/inventaire.ini
+
+- name: Copier la clef SSH privée et publique de user-ansible@localhost
   hosts: NodeManager
   become: yes
   tasks:
@@ -156,6 +169,10 @@
       ansible.builtin.copy:
         src: ~/.ssh/id_rsa
         dest: /root/.ssh/id_rsa_gateway
+    - name: Copier la clef SSH publique de user-ansible@localhost
+      ansible.builtin.copy:
+        src: ~/.ssh/id_rsa.pub
+        dest: /root/.ssh/id_rsa_gateway.pub
 
 - name: Mise en place du service web 'web-management'
   hosts: NodeManager
@@ -170,3 +187,14 @@
     - template: "HTTP-VH.j2"
   roles:
     - template_website
+
+- name: Mise en place du ProxyInverse pour NodeManager
+  hosts: proxyinverse1
+  vars:
+    - FQDN: "{{ hostvars['NodeManager']['FQDN'] }}"
+    - Name: "PHPMYADMIN"
+    - Ipv4Port: "80"
+    - Ipv4Dest: "{{ hostvars['NodeManager']['ansible_host'] }}"
+    - ACL: "{{ hostvars['NodeManager']['ACL'] }}"
+  roles:
+    - template_proxyinverse
