@@ -7,6 +7,8 @@
     - name: Créer le dossier ProxyInverse1 pour stocker les clefs
       ansible.builtin.file:
         path: /home/user-ansible/projetAnsible/ressources/keys/proxyinverse1/
+        mode: '0755'
+        recurse: yes
         state: directory
     - name: Créer le réseau bridge
       community.docker.docker_network:
@@ -35,11 +37,14 @@
 - name: Installe les paquets de base
   hosts: proxyinverse1
   become: yes
+  become_method: sudo
+  become_user: root
   roles:
     - base_packages
 
 - name: Création du container Base de Données (MySQL)
   hosts: localhost
+  become: yes
   tasks:
     - name: Créer le dossier SQL pour stocker la data
       ansible.builtin.file:
@@ -65,6 +70,9 @@
 
 - name: Création du container PHPMyAdmin (MySQL)
   hosts: localhost
+  become: yes
+  become_method: sudo
+  become_user: root
   tasks:
       - name: Create_phpmyadmin_container
         community.docker.docker_container:
@@ -118,10 +126,14 @@
 - name: Création du web Manager (Node Manager)
   hosts: localhost
   become: yes
+  become_method: sudo
+  become_user: root
   tasks:
     - name: Créer le dossier NodeManager pour stocker les clefs
       ansible.builtin.file:
         path: /home/user-ansible/projetAnsible/ressources/keys/NodeManager/
+        mode: '0755'
+        recurse: yes
         state: directory
     - name: Créer le container NodeManager
       docker_container:

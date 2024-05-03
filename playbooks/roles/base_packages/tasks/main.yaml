@@ -1,4 +1,12 @@
 ---
+#- name: Mettre à jour la liste des paquets
+#  apt:
+#    update: yes
+
+#- name: Mettre à jour les paquets
+#  apt:
+#    upgrade: yes
+
 - name: Installer le pack Apache / PHP
   apt:
     name:

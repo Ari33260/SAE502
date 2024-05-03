@@ -11,7 +11,7 @@
     - name: Get info container
       community.docker.docker_container_info:
         name: "{{ item }}"
-      with_items: "{{ groups['test'] }}"
+      with_items: "{{ groups['exemple'] }}"
       register: result
 
     
@@ -104,7 +104,11 @@
 
 - name: Afficher adresse IP
   hosts: localhost
+  become: yes
+  vars:
+    - Host: "{{ hostvars['localhost']['Host'] }}"
   tasks:
-    - ansible.builtin.debug:
-      msg: "L'adresse IP est : {{ hostvars[hostvars['localhost']['ansible_host']] }}"
+    - name: Afficher l'adresse IP
+      ansible.builtin.debug:
+        msg: "L'adresse IP est : {{ hostvars[Host]['ansible_host'] }}"
         
