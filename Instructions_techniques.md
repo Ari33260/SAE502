@@ -141,4 +141,4 @@ bash website.bash del FQDN
 Si votre ancienne base n'était pas sous MySQL, il est nécessaire de passer par cette étape. \
 L'objectif est d'utiliser I.H.M de PHPMyAdmin afin d'insérer un fichier SQL.
 1) Connectez-vous à PHPMyAdmin 
-[Page login PHPMyAdmin](ressources/.screenshots-it/php-my-admin_login.png)
+![Page login PHPMyAdmin](ressources/.screenshots-it/php-my-admin_login.png)
