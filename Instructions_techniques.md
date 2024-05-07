@@ -104,3 +104,41 @@ scp -r utilisateur@adresse_distante:/var/lib/mysql/ .
 ->Vous pouvez utiliser une autre méthode de migration si celle-ci n'est pas satisfaisante : **PARTIE 4** section **???**
 
 ### 4 - Déploiement
+Dans un premier temps, lancer le script qui permet d'initier le tout :
+```shell
+bash start.bash
+```
+Compter 3 à 5 minutes le temps que la base se déploie.
+
+1) Ajouter un site-web :
+```shell
+bash website.bash add GIT_URL FQDN ACL
+```
+`GIT_URL` : Un lien .git est attendu, ce git doit d'agir d'un site-web. \
+`FQDN` : Il doit correspondre au "nom" de domaine voulu pour ce site \
+`ACL` (*non obligatoire*) : Argument à utiliser si vous souhaitez restreindre l'accès à certains réseaux ou machines.
+> Exemple : Pour autoriser par exemple le réseau `172.33.40.0/24` et la machine `161.3.131.0` au site-web à déployer:
+> - `Require ip 172.33.40.0/24` \
+    `Require ip 161.3.131.0`
+>
+> Ce qui nous donnerait donc  :
+> ```ini
+> bash website.bash add https://exemple.net/website.git exemple.fr ACL="Require ip 172.33.40.0/24,Require ip 161.3.131.0"
+> ```
+Le script va scanner tous les hosts défini dans `inventaire.ini` puis va comparer logiquement s'il existe en tant que "conteneur", il va prendre directement le premier qui n'existe pas.
+
+2) Supprimer un site-web \
+Supprimer un site-web est très simple, il suffit de taper son **FQDN** :
+```shell
+bash website.bash del FQDN
+```
+> Exemple : Je veux supprimer le site avec le FQDN `test.tdf.fr` :
+>```shell
+>bash website.bash del test.tdf.fr
+>```
+
+### 5 - Mettre à jour la base de données via IHM
+Si votre ancienne base n'était pas sous MySQL, il est nécessaire de passer par cette étape. \
+L'objectif est d'utiliser I.H.M de PHPMyAdmin afin d'insérer un fichier SQL.
+1) Connectez-vous à PHPMyAdmin 
+[Page login PHPMyAdmin](ressources/.screenshots-it/php-my-admin_login.png)
