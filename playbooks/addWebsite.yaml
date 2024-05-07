@@ -11,7 +11,7 @@
     - name: Get info container
       community.docker.docker_container_info:
         name: "{{ item }}"
-      with_items: "{{ groups['exemple'] }}"
+      with_items: "{{ groups['websites'] }}"
       register: result
 
     
