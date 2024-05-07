@@ -9,12 +9,16 @@ command=$1
 shift
 
 if [ "$command" == "add" ]; then
-    GIT=$2
-    FQDN=$3
-    ACL=$4
+    GIT=$1
+    FQDN=$2
+    ACL=$3
+    echo "GIT link : $GIT"
+    echo "FQDN : $FQDN"
+    echo "ACL : $ACL"
     ansible-playbook -b -i inventories/inventaire.ini playbooks/addWebsite.yaml --extra-vars '{"GIT":"'"$GIT"'","ACL":"'"$ACL"'","FQDN":"'"$FQDN"'"}'
 elif [ "$command" == "del" ]; then
-    FQDN=$2
+    FQDN=$1
+    echo "FQDN : $FQDN"
     ansible-playbook -b -i inventories/inventaire.ini playbooks/delWebsite.yaml --extra-vars '{"FQDN":"'"$FQDN"'"}'
 else
     echo "Commande inconnue: $command"

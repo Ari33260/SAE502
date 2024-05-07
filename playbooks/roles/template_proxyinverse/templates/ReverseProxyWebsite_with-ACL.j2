@@ -4,7 +4,7 @@
     ServerAlias www.{{ FQDN }}
 
     <Proxy *>
-        {{ ACL|join('\n') }}
+        {{ ACL|replace(',','\n') }}
     </Proxy>
 
     ProxyPreserveHost On

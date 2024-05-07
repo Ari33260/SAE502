@@ -109,7 +109,7 @@
     - Name: "PHPMYADMIN"
     - Ipv4Port: "80"
     - Ipv4Dest: "{{ hostvars['phpmyadmin']['ansible_host'] }}"
-    - ACL: "{{ hostvars['phpmyadmin']['ACL'].split(',') }}"
+    - ACL: "{{ hostvars['phpmyadmin']['ACL'] }}"
   roles:
     - template_proxyinverse
 
