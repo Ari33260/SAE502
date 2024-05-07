@@ -13,6 +13,9 @@
     - name: Créer le réseau bridge
       community.docker.docker_network:
         name: "{{ hostvars['Docker']['NameBridge'] }}"
+        ipam_config:
+          - subnet: "{{ hostvars['Docker']['CIDR'] }}"
+            gateway: "{{ hostvars['Docker']['Gateway'] }}"
         driver: bridge
         state: present
     - name: Créer le conteneur ProxyInverse
@@ -106,7 +109,7 @@
     - Name: "PHPMYADMIN"
     - Ipv4Port: "80"
     - Ipv4Dest: "{{ hostvars['phpmyadmin']['ansible_host'] }}"
-    - ACL: "{{ hostvars['phpmyadmin']['ACL'] }}"
+    - ACL: "{{ hostvars['phpmyadmin']['ACL'].split(',') }}"
   roles:
     - template_proxyinverse
 
